@@ -1,0 +1,6 @@
+name: NextGenBedwars
+version: '1.0-SNAPSHOT'
+main: org.ourworld.nextgen.Bedwars
+api-version: '1.20'
+authors: [ Earth_Studio ]
+description: The next generation of the bedwars.
