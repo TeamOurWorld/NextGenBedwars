@@ -10,6 +10,15 @@ public class BedwarsItemSpawnEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
+    @Override
+    public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private Location spawnLocation;
     private Material itemType;
     private int spawnTime;
@@ -44,12 +53,4 @@ public class BedwarsItemSpawnEvent extends Event {
         return spawnTime;
     }
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
 }
