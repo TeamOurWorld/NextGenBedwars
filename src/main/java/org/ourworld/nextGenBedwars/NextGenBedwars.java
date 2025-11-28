@@ -3,6 +3,7 @@ package org.ourworld.nextGenBedwars;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ourworld.nextGenBedwars.i18n.I18n;
 
 public final class NextGenBedwars extends JavaPlugin {
 
@@ -15,6 +16,8 @@ public final class NextGenBedwars extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
+        reloadConfig();
+
         registerListener();
 
         getComponentLogger().info(Component.text("[Main] Loaded!").color(NamedTextColor.GREEN));
@@ -30,4 +33,11 @@ public final class NextGenBedwars extends JavaPlugin {
         //getServer().getPluginManager().registerEvents(, this);
     }
 
+    @Override
+    public void reloadConfig() {
+        this.saveDefaultConfig();
+        super.reloadConfig();
+
+        I18n.init();
+    }
 }
