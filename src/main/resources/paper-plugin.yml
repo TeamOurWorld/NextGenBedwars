@@ -1,0 +1,6 @@
+name: NextGenBedwars
+version: '1.0-SNAPSHOT'
+main: org.ourworld.nextGenBedwars.NextGenBedwars
+api-version: '1.21'
+prefix: NextGen
+authors: [ Earth_Studio ]
