@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1" // 必须要有 Shadow 插件
+    id("io.github.goooler.shadow") version "8.1.8" // 必须要有 Shadow 插件
 }
 
 group = 'org.ourworld'
@@ -17,7 +17,8 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-pre3-R0.1-SNAPSHOT")
-    implementation 'io.github.revxrsal:lamp.common:4.0.0-beta.19'
+    implementation 'io.github.revxrsal:lamp.common:4.0.0-rc.14'
+    implementation 'io.github.revxrsal:lamp.bukkit:4.0.0-rc.14'
     implementation 'io.github.revxrsal:lamp.paper:4.0.0-beta.19'
 }
 
@@ -27,6 +28,9 @@ tasks {
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("1.21")
+    }
+    build {
+        dependsOn("shadowJar")
     }
     shadowJar {
         // 很重要！重定位包名，防止与其他使用 Lamp 的插件冲突
