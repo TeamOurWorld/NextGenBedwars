@@ -8,11 +8,13 @@ public final class NextGenBedwars extends JavaPlugin {
 
     public static JavaPlugin plugin;
 
+    public NextGenBedwars() {
+        plugin = this;
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
-        plugin = this;
-
         registerListener();
 
         getComponentLogger().info(Component.text("[Main] Loaded!").color(NamedTextColor.GREEN));
