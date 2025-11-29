@@ -2,13 +2,15 @@ package org.ourworld.nextGenBedwars.event.spawner;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class BedwarsItemSpawnEvent extends Event {
+public class BedwarsItemSpawnEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
+    private boolean isCancelled = false;
 
     @Override
     public @NotNull HandlerList getHandlers() {
@@ -17,6 +19,16 @@ public class BedwarsItemSpawnEvent extends Event {
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean isCancelled) {
+        this.isCancelled = isCancelled;
     }
 
     private Location spawnLocation;

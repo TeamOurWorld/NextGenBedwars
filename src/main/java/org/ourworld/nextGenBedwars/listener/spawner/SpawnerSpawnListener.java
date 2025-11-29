@@ -3,6 +3,7 @@ package org.ourworld.nextGenBedwars.listener.spawner;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,7 @@ public class SpawnerSpawnListener implements Listener {
 
     NamespacedKey key = new NamespacedKey(plugin, "no_merge");
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onItemSpawn(BedwarsItemSpawnEvent event) {
         Item item = event.getSpawnLocation().getWorld().dropItem(
                 event.getSpawnLocation(),
@@ -29,7 +30,7 @@ public class SpawnerSpawnListener implements Listener {
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onItemMerge(ItemMergeEvent event) {
         // 检查"发起合并"的物品是否有标签
         if (event.getEntity().getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
