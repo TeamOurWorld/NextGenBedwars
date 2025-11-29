@@ -1,7 +1,5 @@
 package org.ourworld.nextGenBedwars.gameplay.core.spawner;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.ourworld.nextGenBedwars.event.spawner.BedwarsItemSpawnEvent;
