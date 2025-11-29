@@ -52,13 +52,6 @@ public class ItemSpawnerManager {
                     plugin.getServer().getPluginManager().callEvent(event);
                     spawnLocation = event.getSpawnLocation();
                     itemType = event.getItemType();
-
-                    if (event.getSpawnTime() <= 0) {
-                        plugin.getComponentLogger().warn(Component.text("[Spawner] You are trying to set \"spawnTime\" <= 0, spawner won't take this change. Please check your code.").color(NamedTextColor.YELLOW));
-                        leftTick = spawnTime;
-                        return;
-                    }
-
                     spawnTime = event.getSpawnTime();
                     leftTick = spawnTime;
                     return;

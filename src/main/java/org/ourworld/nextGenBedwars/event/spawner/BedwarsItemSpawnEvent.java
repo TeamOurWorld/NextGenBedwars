@@ -58,6 +58,9 @@ public class BedwarsItemSpawnEvent extends Event implements Cancellable {
     }
 
     public void setSpawnTime(int spawnTime) {
+        if (spawnTime <= 0) {
+            throw new IllegalArgumentException("[Spawner] Spawn time must be > 0. You passed: " + spawnTime);
+        }
         this.spawnTime = spawnTime;
     }
 
