@@ -113,8 +113,11 @@ public class ItemSpawner implements TickerTask {
             this.leftTick--;
         }
 
-        holoItem.setRotation(holoItem.getYaw() + 5.0f, 0);
-        holoText.text(replaceHolder(holoTextContent));
+        if (holoItem != null)
+            holoItem.setRotation(holoItem.getYaw() - 5.0f, 0); // todo: 插值动画 + 上下浮动
+
+        if (holoText != null)
+            holoText.text(replaceHolder(holoTextContent));
     }
 
     @Override
