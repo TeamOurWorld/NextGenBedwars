@@ -1,15 +1,10 @@
 package org.ourworld.nextGenBedwars.gameplay.core.spawner;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.ourworld.nextGenBedwars.event.spawner.BedwarsItemSpawnEvent;
 import org.ourworld.nextGenBedwars.util.GlobalTicker;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.ourworld.nextGenBedwars.NextGenBedwars.plugin;
 
 public class ItemSpawnerManager {
 
@@ -37,27 +32,7 @@ public class ItemSpawnerManager {
      * @param spawner 新的 ItemSpawner 数据类，用于覆盖资源生成点参数
      */
     public void setSpawner(UUID uuid, ItemSpawner spawner) {
-        GlobalTicker.set(uuid, new Runnable() {
-            Location spawnLocation = spawner.location();
-            Material itemType = spawner.material();
-            int spawnTime = spawner.spawnTick();
-            int leftTick = spawnTime;
-
-            @Override
-            public void run() {
-                if (leftTick <= 0) {
-                    BedwarsItemSpawnEvent event = new BedwarsItemSpawnEvent(spawnLocation, itemType, spawnTime);
-                    plugin.getServer().getPluginManager().callEvent(event);
-                    spawnLocation = event.getSpawnLocation();
-                    itemType = event.getItemType();
-                    spawnTime = event.getSpawnTime();
-                    leftTick = spawnTime;
-                    return;
-                }
-
-                leftTick--;
-            }
-        });
+        GlobalTicker.set(uuid, spawner);
     }
 
     /**
