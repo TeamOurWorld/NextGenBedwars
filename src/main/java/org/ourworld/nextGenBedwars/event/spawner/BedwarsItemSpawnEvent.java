@@ -9,6 +9,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class BedwarsItemSpawnEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -37,19 +39,25 @@ public class BedwarsItemSpawnEvent extends Event implements Cancellable {
     private Material itemType;
     private int spawnTime;
 
-    private ItemDisplay itemDisplay;
-    private TextDisplay textDisplay;
+    private UUID itemDisplayId;
+    private UUID textDisplayId;
 
-    public BedwarsItemSpawnEvent(Location spawnLocation, Material itemType, int spawnTime, ItemDisplay itemDisplay, TextDisplay textDisplay) {
+    private String holoTextContent;
+
+    public BedwarsItemSpawnEvent(Location spawnLocation, Material itemType, int spawnTime, UUID itemDisplay, UUID textDisplay, String holoTextContent) {
         this.spawnLocation = spawnLocation;
         this.itemType = itemType;
         this.spawnTime = spawnTime;
+        this.itemDisplayId = itemDisplay;
+        this.textDisplayId = textDisplay;
+        this.holoTextContent = holoTextContent;
     }
 
     public void setSpawnLocation(Location spawnLocation) {
-        spawnLocation.setYaw(0);
-        spawnLocation.setPitch(0);
-        this.spawnLocation = spawnLocation;
+        Location locCopy = spawnLocation.clone();
+        locCopy.setYaw(0);
+        locCopy.setPitch(0);
+        this.spawnLocation = locCopy;
     }
 
     public Location getSpawnLocation() {
@@ -71,12 +79,28 @@ public class BedwarsItemSpawnEvent extends Event implements Cancellable {
         this.spawnTime = spawnTime;
     }
 
-    public ItemDisplay getItemDisplay() {
-        return itemDisplay;
+    public void setItemDisplay(ItemDisplay itemDisplay) {
+        this.itemDisplayId = (itemDisplay != null) ? itemDisplay.getUniqueId() : null;
     }
 
-    public TextDisplay getTextDisplay() {
-        return textDisplay;
+    public void setTextDisplay(TextDisplay textDisplay) {
+        this.textDisplayId = (textDisplay != null) ? textDisplay.getUniqueId() : null;
+    }
+
+    public UUID getItemDisplayId() {
+        return itemDisplayId;
+    }
+
+    public UUID getTextDisplayId() {
+        return textDisplayId;
+    }
+
+    public void setHoloTextContent(String holoTextContent) {
+        this.holoTextContent = holoTextContent;
+    }
+
+    public String getHoloTextContent() {
+        return holoTextContent;
     }
 
     public int getSpawnTime() {

@@ -3,10 +3,12 @@ package org.ourworld.nextGenBedwars.gameplay.core.spawner;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +17,8 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 import org.ourworld.nextGenBedwars.event.spawner.BedwarsItemSpawnEvent;
 import org.ourworld.nextGenBedwars.util.TickerTask;
+
+import java.util.UUID;
 
 import static org.ourworld.nextGenBedwars.NextGenBedwars.plugin;
 
@@ -25,20 +29,21 @@ public class ItemSpawner implements TickerTask {
     private int spawnTick;
     private String holoTextContent;
 
-    private ItemDisplay holoItem = null;
-    private TextDisplay holoText = null;
+    private UUID holoItemId = null;
+    private UUID holoTextId = null;
 
     private int leftTick;
 
     public ItemSpawner(Location location, Material itemType, int spawnTick, Material holoItemType, String holoTextContent) {
-        location.setYaw(0);
-        location.setPitch(0);
-        this.location = location;
+        Location locCopy = location.clone();
+        locCopy.setYaw(0);
+        locCopy.setPitch(0);
+        this.location = locCopy;
         this.itemType = itemType;
         this.spawnTick = spawnTick;
         if(holoItemType != null)
-            location.getWorld().spawn(location, ItemDisplay.class, itemDisplay -> {
-                this.holoItem = itemDisplay;
+            location.getWorld().spawn(this.location, ItemDisplay.class, itemDisplay -> {
+                this.holoItemId = itemDisplay.getUniqueId();
 
                 itemDisplay.setItemStack(new ItemStack(holoItemType));
                 itemDisplay.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
@@ -54,8 +59,8 @@ public class ItemSpawner implements TickerTask {
             });
 
         if (holoTextContent != null)
-            location.getWorld().spawn(location, TextDisplay.class, textDisplay -> {
-                this.holoText = textDisplay;
+            location.getWorld().spawn(this.location, TextDisplay.class, textDisplay -> {
+                this.holoTextId = textDisplay.getUniqueId();
                 this.holoTextContent = holoTextContent;
 
                 textDisplay.text(replaceHolder(holoTextContent));
@@ -100,30 +105,71 @@ public class ItemSpawner implements TickerTask {
 
     @Override
     public void run() {
+        ItemDisplay itemDisplay = null;
+        TextDisplay textDisplay = null;
+
+        if (holoItemId != null)
+            itemDisplay = (ItemDisplay) Bukkit.getEntity(holoItemId);
+        if (holoTextId != null)
+            textDisplay = (TextDisplay) Bukkit.getEntity(holoTextId);
+
         if (leftTick <= 0) {
-            BedwarsItemSpawnEvent event = new BedwarsItemSpawnEvent(location, itemType, spawnTick, holoItem, holoText);
+            BedwarsItemSpawnEvent event = new BedwarsItemSpawnEvent(location, itemType, spawnTick, holoItemId, holoTextId, holoTextContent);
             plugin.getServer().getPluginManager().callEvent(event);
 
             this.location = event.getSpawnLocation();
             this.itemType = event.getItemType();
             this.spawnTick = event.getSpawnTime();
+            this.holoTextContent = event.getHoloTextContent();
+
+            if (this.holoItemId != event.getItemDisplayId()) { // todo: 重新生成 display 实体
+                // 只要旧的不为空，就先删掉 (涵盖了移除和替换)
+                if (this.holoItemId != null && location.isChunkLoaded() && itemDisplay != null)
+                    itemDisplay.remove();
+                // 更新引用 (涵盖了从无到有、替换、移除变成null)
+                this.holoItemId = event.getItemDisplayId();
+                itemDisplay = (ItemDisplay) Bukkit.getEntity(holoItemId);
+            }
+
+            if (this.holoTextId != event.getTextDisplayId()) {
+                if (this.holoTextId != null && location.isChunkLoaded() && textDisplay != null)
+                    textDisplay.remove();
+
+                this.holoTextId = event.getTextDisplayId();
+                textDisplay = (TextDisplay) Bukkit.getEntity(holoTextId);
+            }
 
             this.leftTick = this.spawnTick;
         } else {
             this.leftTick--;
         }
 
-        if (holoItem != null)
-            holoItem.setRotation(holoItem.getYaw() - 5.0f, 0); // todo: 插值动画 + 上下浮动
+        if (holoItemId != null && itemDisplay != null && location.isChunkLoaded())
+            itemDisplay.setRotation(itemDisplay.getYaw() - 5.0f, 0); // todo: 插值动画 + 上下浮动
 
-        if (holoText != null)
-            holoText.text(replaceHolder(holoTextContent));
+        if (holoTextId != null && textDisplay != null && location.isChunkLoaded())
+            if (holoTextContent != null)
+                textDisplay.text(replaceHolder(holoTextContent)); // todo: 优化刷新逻辑 使其不要每次都更新 而是仅当文字变化时才更新
     }
 
     @Override
     public void shutdown() {
-        if (holoItem != null) holoItem.remove();
-        if (holoText != null) holoText.remove();
+        if (!location.isChunkLoaded())
+            return;
+
+        if (holoItemId != null && Bukkit.getEntity(holoItemId) != null) {
+            Bukkit.getEntity(holoItemId).remove();
+            holoItemId = null;
+        }
+        if (holoTextId != null && Bukkit.getEntity(holoTextId) != null) {
+            Bukkit.getEntity(holoTextId).remove();
+            holoTextId = null;
+        }
+
+        location = null;
+        itemType = null;
+        spawnTick = -1;
+        leftTick = -1;
     }
 
     private Component replaceHolder(String rawText) {
