@@ -40,6 +40,8 @@ public final class NextGenBedwars extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         getComponentLogger().info(Component.text("[Main] Goodbye!").color(NamedTextColor.GREEN));
+        itemSpawnerManager.shutdown();
+        GlobalTicker.shutdown();
     }
 
     private void registerListener() {

@@ -17,7 +17,7 @@ public class GlobalTicker {
     private static boolean isInit = false;
     private static BukkitTask tickerTask;
 
-    private static Map<UUID, Runnable> taskMap;
+    private static Map<UUID, TickerTask> taskMap;
 
     private GlobalTicker() {}
 
@@ -46,7 +46,7 @@ public class GlobalTicker {
      * @param runnable 你的自定义任务
      * @return 返回该任务的 UUID
      */
-    public static UUID add(Runnable runnable) {
+    public static UUID add(TickerTask runnable) {
         UUID uuid = UUID.randomUUID();
         set(uuid, runnable);
         return uuid;
@@ -57,7 +57,7 @@ public class GlobalTicker {
      * @param uuid 要覆盖的任务的 UUID
      * @param runnable 新的自定义任务
      */
-    public static void set(UUID uuid, Runnable runnable) {
+    public static void set(UUID uuid, TickerTask runnable) {
         taskMap.put(uuid, runnable);
     }
 
@@ -66,7 +66,7 @@ public class GlobalTicker {
      * @param uuid 要获取的任务的 UUID
      * @return 指定的自定义任务
      */
-    public static Runnable get(UUID uuid) {
+    public static TickerTask get(UUID uuid) {
         return taskMap.get(uuid);
     }
 
@@ -75,13 +75,19 @@ public class GlobalTicker {
      * @param uuid 要移除的自定义任务的 UUID
      */
     public static void remove(UUID uuid) {
-        taskMap.remove(uuid);
+        TickerTask task = taskMap.remove(uuid);
+        if (task != null) {
+            task.shutdown();
+        }
     }
 
     /**
      * 注销 GlobalTicker，注销后可重新初始化
      */
     public static void shutdown() {
+        taskMap.forEach((uuid, task) -> {
+            task.shutdown();
+        });
         taskMap.clear();
         taskMap = null;
 
