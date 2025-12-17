@@ -4,13 +4,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.ourworld.nextGenBedwars.i18n.I18n;
-import org.ourworld.nextGenBedwars.command.devtest.SpawnerTestCommand;
+import org.ourworld.nextGenBedwars.command.CommandInitialize;
 import org.ourworld.nextGenBedwars.gameplay.core.spawner.ItemSpawnerManager;
+import org.ourworld.nextGenBedwars.i18n.I18n;
 import org.ourworld.nextGenBedwars.listener.inventory.InventoryListener;
 import org.ourworld.nextGenBedwars.listener.spawner.SpawnerSpawnListener;
+import org.ourworld.nextGenBedwars.manager.CommandManager;
 import org.ourworld.nextGenBedwars.util.GlobalTicker;
-import revxrsal.commands.bukkit.BukkitLamp;
 
 public final class NextGenBedwars extends JavaPlugin {
 
@@ -27,12 +27,10 @@ public final class NextGenBedwars extends JavaPlugin {
         reloadConfig();
 
         GlobalTicker.initialize();
-        itemSpawnerManager = new ItemSpawnerManager();
+        CommandInitialize.initialize();
 
-        var lamp = BukkitLamp.builder(this).build();
-        lamp.register(new SpawnerTestCommand());
+        registerManager();
         registerListener();
-
         getComponentLogger().info(Component.text("[Main] Loaded!").color(NamedTextColor.GREEN));
     }
 
@@ -48,6 +46,10 @@ public final class NextGenBedwars extends JavaPlugin {
         PluginManager manager = getServer().getPluginManager();
         manager.registerEvents(new SpawnerSpawnListener(), this);
         manager.registerEvents(InventoryListener.INSTANCE, this);
+    }
+
+    private void registerManager(){
+        CommandManager.getInstance().register(this.getLifecycleManager());
     }
 
     @Override
