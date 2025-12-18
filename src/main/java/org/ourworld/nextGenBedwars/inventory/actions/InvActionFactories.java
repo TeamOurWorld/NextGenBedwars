@@ -2,6 +2,9 @@ package org.ourworld.nextGenBedwars.inventory.actions;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.ourworld.nextGenBedwars.inventory.actions.commands.CommandAction;
+import org.ourworld.nextGenBedwars.inventory.actions.commands.ConsoleAction;
+import org.ourworld.nextGenBedwars.inventory.actions.commands.OpAction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,5 +32,7 @@ public class InvActionFactories {
 
     static {
         register(CommandAction.Factory.MATCHER, CommandAction.Factory.INSTANCE);
+        register(OpAction.Factory.MATCHER, OpAction.Factory.INSTANCE);
+        register(ConsoleAction.Factory.MATCHER, ConsoleAction.Factory.INSTANCE);
     }
 }

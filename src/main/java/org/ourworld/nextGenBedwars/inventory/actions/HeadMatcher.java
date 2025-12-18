@@ -2,7 +2,13 @@ package org.ourworld.nextGenBedwars.inventory.actions;
 
 import java.util.function.Predicate;
 
-public record HeadMatcher(String head) implements Predicate<String> {
+public class HeadMatcher implements Predicate<String> {
+    private final String head;
+
+    public HeadMatcher(String head){
+        this.head = head;
+    }
+
     @Override
     public boolean test(String string) {
         return string.startsWith(head + ": ");

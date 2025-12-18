@@ -6,12 +6,14 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.ourworld.nextGenBedwars.NextGenBedwars;
 import org.ourworld.nextGenBedwars.inventory.actions.InvAction;
 import org.ourworld.nextGenBedwars.inventory.actions.InvActionFactories;
+import org.ourworld.nextGenBedwars.inventory.transformers.InvTransformer;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -32,22 +34,25 @@ public class InvButton {
         return icon.clone();
     }
 
-    public ItemStack getIcon(OfflinePlayer papiTarget) {
-        //TODO 以后可能用到PlaceholderAPI
-        return icon.clone();
+    public ItemStack getIcon(InvConfig config, InventoryHolder holder, OfflinePlayer papiTarget, InvTransformer transformer) {
+        return transformer.button(config, holder, this, papiTarget);
     }
 
-    public void onClick(InventoryClickEvent event) {
+    public void onClick(InventoryClickEvent event, InvTransformer transformer) {
         List<InvAction> actions = this.actions.getOrDefault(event.getClick(), new ArrayList<>());
         Iterator<InvAction> iterator = actions.iterator();
-        if (iterator.hasNext()) iterator.next().run(event, this, iterator);
+        if (iterator.hasNext()) iterator.next().run(event, this, transformer, iterator);
     }
 
     public static InvButton parseYaml(ConfigurationSection section) {
-        String materialStr = section.getString("material","STONE");
-        Material material = Material.matchMaterial(materialStr);
-        ItemStack itemStack = new ItemStack(material == null ? Material.STONE : material);
-        ItemMeta itemMeta = itemStack.getItemMeta();
+        final String materialStr = section.getString("material", "STONE");
+        final Material material = Material.matchMaterial(materialStr);
+        final ItemStack itemStack = new ItemStack(material == null ? Material.STONE : material);
+        final ItemMeta itemMeta = itemStack.getItemMeta();
+        final String name = section.getString("name", null);
+        if (name != null) itemMeta.displayName(Component.text(name));
+        final List<?> lore = section.getList("lore", null);
+        if (lore != null) itemMeta.lore(section.getStringList("lore").stream().map(Component::text).toList());
         itemStack.setItemMeta(itemMeta);
 
         int amount = section.getInt("amount", -1);
@@ -67,10 +72,7 @@ public class InvButton {
             ArrayList<InvAction> actionsList = new ArrayList<>();
             for (Object obj : list) {
                 InvAction action = InvActionFactories.create(obj);
-                if (action == null) {
-                    logger.warning("Unknown action: " + obj);
-                    continue;
-                }
+                if (action == null) continue;
                 actionsList.add(action);
             }
             actions.put(clickType, actionsList);
@@ -93,7 +95,7 @@ public class InvButton {
      */
     public static class Builder {
         private ItemStack display = new ItemStack(Material.STONE);
-        private Map<ClickType, List<InvAction>> actions = new HashMap<>();
+        private final Map<ClickType, List<InvAction>> actions = new HashMap<>();
 
         public ItemStack display() {
             return this.display;

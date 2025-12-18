@@ -13,7 +13,10 @@ import java.util.Arrays;
 public class InvHolderUseExample {
     public static void customInv() {
         String title = "example";
-        InvConfig config = new InvConfig.Builder(title)
+        InvConfig config = new InvConfig.Builder(Component.text(title))
+/*TODO 还没有PlaceholderAPI依赖无法使用
+                .transformer(PapiTransformer.INSTANCE)
+*/
                 //预先好布局
                 .layout(Arrays.asList(
                         "000000000",
@@ -25,13 +28,9 @@ public class InvHolderUseExample {
                         .displayName("我是边界") //可以用 Component 类型
                         .displayLore(Component.text("看我干什么!").color(NamedTextColor.BLUE))
                         //这里只对左键起作用
-                        .actions(ClickType.LEFT, (clickEvent, button) -> {
-                            clickEvent.getWhoClicked().sendMessage("你左键我干什么!");
-                        })
+                        .actions(ClickType.LEFT, (clickEvent, button, transformer) -> clickEvent.getWhoClicked().sendMessage("你左键我干什么!"))
                         //这一个是所有动作的按钮，包裹了各种点击类型 actions 方法只增加，不覆盖!
-                        .actions((clickEvent, button) -> {
-                            clickEvent.getWhoClicked().sendMessage("你点我干什么!");
-                        })
+                        .actions((clickEvent, button, transformer) -> clickEvent.getWhoClicked().sendMessage("你点我干什么!"))
                         //当玩家点击0位置上的这些按钮 会提示 '你点我干什么!' 左键时会有两个提示，第一个是 '你左键我干什么!'
                         // 第二个是 '你点我干什么!'
                         .build())
@@ -39,14 +38,14 @@ public class InvHolderUseExample {
                         .displayMaterial(Material.DIAMOND)
                         .displayName("我是钻石")
                         .displayLore(Component.text("我是什么?").color(NamedTextColor.GREEN))
-                        .actions((clickEvent, button) ->
+                        .actions((clickEvent, button, transformer) ->
                                 clickEvent.getWhoClicked().sendMessage("你点了钻石!")
                         ).build())
                 .button('B', new InvButton.Builder()
                         .displayMaterial(Material.GOLD_INGOT)
                         .displayName("我是金子")
                         .displayLore(Component.text("我是什么?").color(NamedTextColor.YELLOW))
-                        .actions((clickEvent, button) ->
+                        .actions((clickEvent, button, transformer) ->
                                 clickEvent.getWhoClicked().sendMessage("你点了金子!")
                         ).build())
                 .build();
